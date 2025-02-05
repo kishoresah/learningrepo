@@ -1,0 +1,28 @@
+
+
+function getOSInfo(userAgent: string): { name: string; version: string } {
+  let osName = "Unknown";
+  let osVersion = "Unknown";
+
+  if (/Windows NT 10/.test(userAgent)) {
+    osName = "Windows";
+    osVersion = "10";
+  } else if (/Windows NT 6\.1/.test(userAgent)) {
+    osName = "Windows";
+    osVersion = "7";
+  } else if (/Mac OS X (?<version>\d+[_.]\d+)/.test(userAgent)) {
+    osName = "MacOS";
+    osVersion = userAgent.match(/Mac OS X (?<version>\d+[_.]\d+)/)?.groups?.version?.replace("_", ".") || "Unknown";
+  } else if (/Android (?<version>\d+\.\d+)/.test(userAgent)) {
+    osName = "Android";
+    osVersion = userAgent.match(/Android (?<version>\d+\.\d+)/)?.groups?.version || "Unknown";
+  } else if (/iPhone OS (?<version>\d+_\d+)/.test(userAgent)) {
+    osName = "iOS";
+    osVersion = userAgent.match(/iPhone OS (?<version>\d+_\d+)/)?.groups?.version?.replace("_", ".") || "Unknown";
+  } else if (/Linux/.test(userAgent)) {
+    osName = "Linux";
+    osVersion = "Unknown";
+  }
+
+  return { name: osName, version: osVersion };
+}
