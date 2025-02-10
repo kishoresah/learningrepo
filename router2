@@ -1,0 +1,13 @@
+import { useSearchParams } from "next/navigation";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+const Page2 = () => {
+  const searchParams = useSearchParams();
+  const message = searchParams.get("message");
+
+  useEffect(() => {
+    if (message) {
+      toast.success(message);
+    }
+  }, [message])
