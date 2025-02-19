@@ -1,0 +1,71 @@
+webpack issue not refresh hot in next js
+
+https://stackoverflow.com/questions/67030855/next-js-not-auto-refreshing
+
+Fast Refresh was broken for us because we were using a custom webpack config in our next.config.js that set React and ReactDOM as externals.
+
+Ensuring both React and ReactDOM were included in the bundle while in local development fixed the issue for us.
+
+const isDev = NODE_ENV === 'development'
+
+module.exports = {
+  webpack: config => {
+    if (isDev) {
+      return config;
+    }
+
+    return {
+      ...config,
+      externals: {
+        react: 'React',
+        'react-dom': 'ReactDOM',
+      },
+    };
+  },
+};
+
+-------------------
+in my case hot reload didn't work because there was assetsPrefix in my next.config.js. You can remove or change them to "/" in the development mode and everything will be as expected.
+In my case, I removed the assetPrefix in my next.config.js file and now hot reloading is working now
+
+---------------------
+
+// Opt-in to Webpack hot module replacement
+if (module.hot) module.hot.accept()
+
+
+-----------
+https://github.com/gaearon/react-hot-loader
+
+
+--------------
+
+https://stackoverflow.com/questions/39066298/webpack-dev-server-hot-reload-not-working
+
+module.exports = {
+
+    devServer: {
+        hot: true,
+    },
+
+}
+=====================
+devServer: {
+    port: 3000,
+    hot: false,
+    liveReload: true,
+  },
+
+==============
+devServer: {
+    hotOnly: true,
+},
+
+=======
+devServer: {
+    port: 8080,
+    contentBase: ['./src', './public'], // both src and output dirs
+    inline: true,
+    hot: true
+},
+============
