@@ -1,0 +1,33 @@
+const ParentComponent = () => {
+  const [formData, setFormData] = useState({});
+
+  // Update state from child components
+  const handleInputChange = (action, key, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      operationMode: action, // Store operation mode (last action taken)
+      requestedPayload: {
+        ...prevData.requestedPayload, // Preserve existing key-values
+        [key]: value, // Update or add the new key-value
+      },
+    }));
+  };
+
+  // Submit Handler - Creates structured payload & Calls API
+  const handleSubmit = async () => {
+    try {
+      const timeStamp = new Date().toLocaleDateString(); // Generate current date
+      const body = {
+        ...formData, // Keep collected form data
+        time: timeStamp, // Add timestamp
+      };
+
+      const response = await axios.post("/api/saveData", body);
+      console.log("API Response:", response.data);
+
+      alert("Data saved successfully!");
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      alert("Something went wrong!");
+    }
+  };
