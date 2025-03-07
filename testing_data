@@ -1,0 +1,108 @@
+import React, { useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TextField,
+  Button,
+  Typography,
+  Box,
+} from "@mui/material";
+
+const BidTable: React.FC = () => {
+  const [bidData, setBidData] = useState([
+    { quantity: "", price: "", amount: 0, discountAmount: 0 },
+  ]);
+  const [totalAmountBlocked, setTotalAmountBlocked] = useState<number | null>(null);
+
+  // Handle input changes
+  const handleInputChange = (index: number, field: string, value: string) => {
+    const newBidData = [...bidData];
+    newBidData[index] = { ...newBidData[index], [field]: value };
+    setBidData(newBidData);
+  };
+
+  // Calculate values on Submit
+  const handleSubmit = () => {
+    const updatedBidData = bidData.map((bid) => {
+      const quantity = parseFloat(bid.quantity) || 0;
+      const price = parseFloat(bid.price) || 0;
+      const amount = quantity * price;
+      const discountAmount = amount * 0.9; // Applying a 10% discount
+
+      return { ...bid, amount, discountAmount };
+    });
+
+    setBidData(updatedBidData);
+
+    // Calculate Total Amount Blocked
+    const totalBlocked = updatedBidData.reduce((sum, bid) => sum + bid.discountAmount, 0);
+    setTotalAmountBlocked(totalBlocked);
+  };
+
+  return (
+    <Box sx={{ maxWidth: 800, margin: "auto", mt: 3, p: 2 }}>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Bid Quantity</TableCell>
+              <TableCell>Bid Price</TableCell>
+              <TableCell>Bid Amount</TableCell>
+              <TableCell>Discounted Bid Amount</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {bidData.map((bid, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                  <TextField
+                    type="number"
+                    value={bid.quantity}
+                    onChange={(e) => handleInputChange(index, "quantity", e.target.value)}
+                    variant="outlined"
+                    size="small"
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    type="number"
+                    value={bid.price}
+                    onChange={(e) => handleInputChange(index, "price", e.target.value)}
+                    variant="outlined"
+                    size="small"
+                  />
+                </TableCell>
+                <TableCell>{bid.amount ? bid.amount.toFixed(2) : "--"}</TableCell>
+                <TableCell>{bid.discountAmount ? bid.discountAmount.toFixed(2) : "--"}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* Submit Button */}
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ mt: 2, display: "block", marginLeft: "auto", marginRight: "auto" }}
+        onClick={handleSubmit}
+      >
+        Submit
+      </Button>
+
+      {/* Display Total Amount Blocked */}
+      {totalAmountBlocked !== null && (
+        <Typography variant="h6" textAlign="center" sx={{ mt: 2 }}>
+          Total Amount Blocked: <strong>${totalAmountBlocked.toFixed(2)}</strong>
+        </Typography>
+      )}
+    </Box>
+  );
+};
+
+export default BidTable;
