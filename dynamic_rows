@@ -1,0 +1,189 @@
+import React, { useState, useEffect } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TextField,
+  Button,
+  Typography,
+  Box,
+  FormControlLabel,
+  Checkbox,
+} from "@mui/material";
+
+const numberOfRows = 3; // Change this to 1, 2, or 3 to dynamically generate rows
+
+const BidTable: React.FC = () => {
+  const generateRows = (rows: number) =>
+    Array.from({ length: rows }, () => ({
+      quantity: "",
+      price: "",
+      amount: 0,
+      quantityError: "",
+      priceError: "",
+    }));
+
+  const [bidData, setBidData] = useState(generateRows(numberOfRows));
+  const [maxBidAmount, setMaxBidAmount] = useState<number | null>(null);
+  const [isChecked, setIsChecked] = useState(false);
+
+  // Update bidData when numberOfRows changes
+  useEffect(() => {
+    setBidData(generateRows(numberOfRows));
+  }, []);
+
+  // Handle input changes with validation
+  const handleInputChange = (index: number, field: string, value: string) => {
+    let newBidData = [...bidData];
+    let error = "";
+
+    if (field === "quantity") {
+      const quantity = parseInt(value, 10);
+      if (quantity % 10 !== 0) {
+        error = "Bid quantity must be a multiple of 10";
+      }
+    }
+
+    if (field === "price") {
+      const price = parseFloat(value);
+      if (price < 100 || price > 200) {
+        error = "Bid price must be between 100 and 200";
+      }
+    }
+
+    newBidData[index] = { 
+      ...newBidData[index], 
+      [field]: value, 
+      [`${field}Error`]: error 
+    };
+
+    setBidData(newBidData);
+  };
+
+  // Handle checkbox change
+  const handleCheckboxChange = (checked: boolean) => {
+    setIsChecked(checked);
+
+    if (checked && bidData.length > 0) {
+      setBidData((prevBidData) =>
+        prevBidData.map((row, index) =>
+          index === 0 ? { ...row, price: "100", priceError: "" } : row
+        )
+      );
+    }
+  };
+
+  // Calculate values on Submit
+  const handleSubmit = () => {
+    if (!isChecked) {
+      alert("Please check the cut-off price checkbox before submitting.");
+      return;
+    }
+
+    let hasError = false;
+    const updatedBidData = bidData.map((bid) => {
+      const quantity = parseInt(bid.quantity, 10) || 0;
+      const price = parseFloat(bid.price) || 0;
+      const amount = quantity * price;
+      
+      // Validate again before submission
+      const quantityError = quantity % 10 !== 0 ? "Bid quantity must be a multiple of 10" : "";
+      const priceError = price < 100 || price > 200 ? "Bid price must be between 100 and 200" : "";
+
+      if (quantityError || priceError) {
+        hasError = true;
+      }
+
+      return { ...bid, amount, quantityError, priceError };
+    });
+
+    if (hasError) {
+      setBidData(updatedBidData);
+      return;
+    }
+
+    setBidData(updatedBidData);
+    const maxAmount = Math.max(...updatedBidData.map((bid) => bid.amount));
+    setMaxBidAmount(maxAmount);
+  };
+
+  return (
+    <Box sx={{ maxWidth: 800, margin: "auto", mt: 5, p: 3, boxShadow: 3, borderRadius: 2 }}>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              {["Bid Quantity", "Bid Price", "Bid Amount"].map((header) => (
+                <TableCell key={header} sx={{ fontWeight: "bold" }}>
+                  {header}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {bidData.map((bid, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                  <TextField
+                    type="number"
+                    value={bid.quantity}
+                    onChange={(e) => handleInputChange(index, "quantity", e.target.value)}
+                    variant="outlined"
+                    size="small"
+                    error={!!bid.quantityError}
+                    helperText={bid.quantityError}
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    type="number"
+                    value={bid.price}
+                    onChange={(e) => handleInputChange(index, "price", e.target.value)}
+                    variant="outlined"
+                    size="small"
+                    error={!!bid.priceError}
+                    helperText={bid.priceError}
+                  />
+                </TableCell>
+                <TableCell>{bid.amount ? bid.amount.toFixed(2) : "--"}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* Cut-Off Price Checkbox */}
+      <FormControlLabel
+        control={
+          <Checkbox checked={isChecked} onChange={(e) => handleCheckboxChange(e.target.checked)} />
+        }
+        label="Please click to bid on the cut-off price of the IPO"
+        sx={{ mt: 2 }}
+      />
+
+      {/* Submit Button */}
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ mt: 3, display: "block", marginLeft: "auto", marginRight: "auto" }}
+        onClick={handleSubmit}
+      >
+        Submit
+      </Button>
+
+      {/* Display Max Bid Amount */}
+      {maxBidAmount !== null && (
+        <Typography variant="h6" textAlign="center" sx={{ mt: 3 }}>
+          <span style={{ fontWeight: "normal" }}>Amount Blocked (Max Bid Amount):</span>{" "}
+          <span style={{ fontWeight: "bold" }}>${maxBidAmount.toFixed(2)}</span>
+        </Typography>
+      )}
+    </Box>
+  );
+};
+
+export default BidTable;
