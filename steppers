@@ -1,0 +1,32 @@
+import React from 'react';
+import {
+  Stepper,
+  Step,
+  StepLabel,
+  Box,
+  Typography,
+} from '@mui/material';
+
+const statusSteps = ['initial', 'process', 'completed'];
+const currentStatus = 'process'; // this should be dynamic in real scenarios
+
+const DynamicStepper = () => {
+  const activeStep = statusSteps.indexOf(currentStatus);
+
+  return (
+    <Box sx={{ width: '100%' }}>
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Case Progress
+      </Typography>
+      <Stepper activeStep={activeStep} alternativeLabel>
+        {statusSteps.map((label, index) => (
+          <Step key={label}>
+            <StepLabel>{label.charAt(0).toUpperCase() + label.slice(1)}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+    </Box>
+  );
+};
+
+export default DynamicStepper;
