@@ -1,0 +1,78 @@
+import React, { useEffect, useState } from 'react';
+import {
+  Stepper,
+  Step,
+  StepLabel,
+  StepIconProps,
+  Box,
+  Typography,
+  CircularProgress,
+} from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+
+type StepStatus = {
+  label: string;
+  isCurrent: boolean;
+};
+
+const StepIcon = ({ active, completed, icon }: StepIconProps) => {
+  if (completed) {
+    return <CheckCircleIcon color="success" />;
+  } else if (active) {
+    return <RadioButtonCheckedIcon color="primary" />;
+  } else {
+    return <RadioButtonUncheckedIcon color="disabled" />;
+  }
+};
+
+const DynamicStepper: React.FC = () => {
+  const [steps, setSteps] = useState<string[]>([]);
+  const [currentStatus, setCurrentStatus] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    // Simulated API response
+    const response: StepStatus[] = [
+      { label: 'initial', isCurrent: false },
+      { label: 'process', isCurrent: true },
+      { label: 'completed', isCurrent: false },
+    ];
+
+    const labels = response.map(item => item.label);
+    const current = response.find(item => item.isCurrent)?.label || '';
+    setSteps(labels);
+    setCurrentStatus(current);
+    setLoading(false);
+  }, []);
+
+  const activeStep = steps.indexOf(currentStatus);
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" mt={4}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  return (
+    <Box sx={{ width: '100%' }}>
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Case Progress
+      </Typography>
+      <Stepper activeStep={activeStep} alternativeLabel>
+        {steps.map((label, index) => (
+          <Step key={label} completed={index < activeStep}>
+            <StepLabel StepIconComponent={StepIcon}>
+              {label.charAt(0).toUpperCase() + label.slice(1)}
+            </StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+    </Box>
+  );
+};
+
+export default DynamicStepper;
