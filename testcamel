@@ -1,0 +1,8 @@
+function convertToCamelCaseWithSpaces(str) {
+  return str.replace(/_([a-z])/g, (_, char) => char.toUpperCase());
+}
+
+// Example usage:
+const input = "hello_world this_is_a_test";
+const output = convertToCamelCaseWithSpaces(input);
+console.log(output); // "helloWorld thisIsATest"
