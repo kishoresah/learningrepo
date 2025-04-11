@@ -1,0 +1,11 @@
+const data = Array.from({ length: 11 }, (_, i) => ({
+  id: `line-${i + 1}` // or use uuid if truly needed
+}));
+
+return (
+  <>
+    {data.map(item => (
+      <p key={item.id}>Paragraph {item.id}</p>
+    ))}
+  </>
+);
