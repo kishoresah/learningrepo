@@ -1,0 +1,28 @@
+import { render, screen, fireEvent } from '@testing-library/react';
+import MyForm from './MyForm';
+
+it('fills and submits the form', () => {
+  const handleSubmit = jest.fn();
+  render(<MyForm onSubmit={handleSubmit} />);
+
+  // Fill text input
+  fireEvent.change(screen.getByTestId('input-name'), {
+    target: { value: 'John Doe' },
+  });
+
+  // Select dropdown value
+  fireEvent.mouseDown(screen.getByTestId('select-role'));
+  fireEvent.click(screen.getByText('Admin'));
+
+  // Click radio button
+  fireEvent.click(screen.getByTestId('radio-male'));
+
+  // Submit form
+  fireEvent.click(screen.getByTestId('submit-button'));
+
+  expect(handleSubmit).toHaveBeenCalledWith({
+    name: 'John Doe',
+    role: 'admin',
+    gender: 'male',
+  });
+});
