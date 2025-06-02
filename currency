@@ -1,0 +1,94 @@
+function currencyFormat(value: number | string): string {
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+
+  if (isNaN(num)) {
+    throw new Error('Invalid number input');
+  }
+
+  return num.toLocaleString('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 2,
+  });
+}
+
+// Examples:
+console.log(currencyFormat(123456.789)); // "₹1,23,456.79"
+console.log(currencyFormat("98765.43")); // "₹98,765.43"
+
+=========
+
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Registration } from './Registration';
+
+describe('Registration Component', () => {
+  const setup = (status: 'Y' | 'N', existingUser?: any) => {
+    const setUsername = jest.fn();
+    const setEmail = jest.fn();
+    const setPhone = jest.fn();
+    const onSubmit = jest.fn();
+
+    render(
+      <Registration
+        status={status}
+        existingUser={existingUser}
+        setUsername={setUsername}
+        setEmail={setEmail}
+        setPhone={setPhone}
+        onSubmit={onSubmit}
+      />
+    );
+
+    return {
+      setUsername,
+      setEmail,
+      setPhone,
+      onSubmit,
+    };
+  };
+
+  it('should render Create New User form and not call setters on mount', () => {
+    const { setUsername, setEmail, setPhone } = setup('Y');
+
+    expect(screen.getByText('Create New User')).toBeInTheDocument();
+    expect(setUsername).not.toHaveBeenCalled();
+    expect(setEmail).not.toHaveBeenCalled();
+    expect(setPhone).not.toHaveBeenCalled();
+  });
+
+  it('should render Update User and populate fields using setters', () => {
+    const existingUser = {
+      name: 'Kishore',
+      email: 'kishore@example.com',
+      phone: '1234567890',
+    };
+
+    const { setUsername, setEmail, setPhone } = setup('N', existingUser);
+
+    expect(screen.getByText('Update User')).toBeInTheDocument();
+    expect(setUsername).toHaveBeenCalledWith('Kishore');
+    expect(setEmail).toHaveBeenCalledWith('kishore@example.com');
+    expect(setPhone).toHaveBeenCalledWith('1234567890');
+
+    expect(screen.getByTestId('name-input')).toHaveValue('Kishore');
+    expect(screen.getByTestId('email-input')).toHaveValue('kishore@example.com');
+    expect(screen.getByTestId('phone-input')).toHaveValue('1234567890');
+  });
+
+  it('should submit form with entered values', () => {
+    const { onSubmit } = setup('Y');
+
+    fireEvent.change(screen.getByTestId('name-input'), { target: { value: 'John' } });
+    fireEvent.change(screen.getByTestId('email-input'), { target: { value: 'john@example.com' } });
+    fireEvent.change(screen.getByTestId('phone-input'), { target: { value: '9876543210' } });
+
+    fireEvent.click(screen.getByText('Submit'));
+
+    expect(onSubmit).toHaveBeenCalledWith({
+      name: 'John',
+      email: 'john@example.com',
+      phone: '9876543210',
+    });
+  });
+});
