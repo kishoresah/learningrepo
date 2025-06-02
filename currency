@@ -92,3 +92,130 @@ describe('Registration Component', () => {
     });
   });
 });
+
+===================================
+Full test cases
+===================================
+import React from 'react';
+import { render, fireEvent, waitFor, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import UserForm from './UserForm'; // your component
+import userReducer from '../store/userSlice'; // if needed
+import { getBalance } from '../store/balanceSlice'; // the thunk
+
+// 🧪 Mock the Redux Thunk
+jest.mock('../store/balanceSlice', () => ({
+  getBalance: jest.fn(() => ({
+    type: 'getBalance/fulfilled',
+    payload: {
+      bank: 'SBI',
+      balance: 10000,
+    },
+  })),
+}));
+
+// 🏗️ Create a mock Redux store
+const mockStore = configureStore({
+  reducer: {
+    user: userReducer,     // include reducer if required
+  },
+});
+
+describe('UserForm Component', () => {
+  beforeEach(() => {
+    render(
+      <Provider store={mockStore}>
+        <UserForm />
+      </Provider>
+    );
+  });
+
+  // ✅ 1. API call on mount (via useEffect)
+  it('calls dispatch(getBalance) on mount', async () => {
+    await waitFor(() => {
+      expect(getBalance).toHaveBeenCalled();
+    });
+
+    // Form remains empty (API data used only in state)
+    expect(screen.getByTestId('name')).toHaveValue('');
+  });
+
+  // ✅ 2. Name input should allow only uppercase
+  it('shows error for invalid first name', () => {
+    fireEvent.change(screen.getByTestId('name'), {
+      target: { value: 'kishore123' },
+    });
+    expect(screen.getByText('Only uppercase letters allowed')).toBeInTheDocument();
+  });
+
+  // ✅ 3. Input fields work as expected
+  it('updates email, dpid, and last name inputs correctly', () => {
+    fireEvent.change(screen.getByTestId('email'), {
+      target: { value: 'test@domain.com' },
+    });
+    fireEvent.change(screen.getByTestId('dpid'), {
+      target: { value: 'DP456' },
+    });
+    fireEvent.change(screen.getByTestId('lastName'), {
+      target: { value: 'Verma' },
+    });
+
+    expect(screen.getByTestId('email')).toHaveValue('test@domain.com');
+    expect(screen.getByTestId('dpid')).toHaveValue('DP456');
+    expect(screen.getByTestId('lastName')).toHaveValue('Verma');
+  });
+
+  // ✅ 4. Validation on submit with missing/invalid fields
+  it('shows validation errors on invalid submit', () => {
+    fireEvent.change(screen.getByTestId('name'), {
+      target: { value: '' },
+    });
+    fireEvent.change(screen.getByTestId('email'), {
+      target: { value: 'invalid' },
+    });
+    fireEvent.change(screen.getByTestId('dpid'), {
+      target: { value: '' },
+    });
+    fireEvent.change(screen.getByTestId('lastName'), {
+      target: { value: '' },
+    });
+
+    fireEvent.click(screen.getByText('Submit'));
+
+    expect(screen.getByText('Name is required')).toBeInTheDocument();
+    expect(screen.getByText('Email is invalid')).toBeInTheDocument();
+    expect(screen.getByText('DP ID required')).toBeInTheDocument();
+    expect(screen.getByText('Last Name required')).toBeInTheDocument();
+  });
+
+  // ✅ 5. Successful form submit
+  it('submits the form when all fields are valid', () => {
+    fireEvent.change(screen.getByTestId('name'), {
+      target: { value: 'KISHORE' },
+    });
+    fireEvent.change(screen.getByTestId('email'), {
+      target: { value: 'test@example.com' },
+    });
+    fireEvent.change(screen.getByTestId('dpid'), {
+      target: { value: 'DP999' },
+    });
+    fireEvent.change(screen.getByTestId('lastName'), {
+      target: { value: 'Sharma' },
+    });
+
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+    fireEvent.click(screen.getByText('Submit'));
+
+    expect(consoleSpy).toHaveBeenCalledWith('Form Submitted:', {
+      name: 'KISHORE',
+      email: 'test@example.com',
+      dpid: 'DP999',
+      lastName: 'Sharma',
+    });
+
+    consoleSpy.mockRestore();
+  });
+});
+
