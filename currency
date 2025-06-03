@@ -218,4 +218,37 @@ describe('UserForm Component', () => {
     consoleSpy.mockRestore();
   });
 });
+============================
+
+import React from 'react';
+import { render, fireEvent, screen } from '@testing-library/react';
+import MyComponent from './MyComponent';
+
+describe('MyComponent Button Click', () => {
+  it('should call all state setters with correct values when button is clicked', () => {
+    const mockSetShowCustomerDetails = jest.fn();
+    const mockSetSelecteRow = jest.fn();
+    const mockSetPanelNum = jest.fn();
+
+    const mockRow = { id: 123, name: 'John' };
+    const panelNum = 5;
+
+    render(
+      <MyComponent
+        row={mockRow}
+        panelNum={panelNum}
+        setShowCustomerDetails={mockSetShowCustomerDetails}
+        setSelecteRow={mockSetSelecteRow}
+        setPanelNum={mockSetPanelNum}
+      />
+    );
+
+    fireEvent.click(screen.getByTestId('click-button'));
+
+    expect(mockSetShowCustomerDetails).toHaveBeenCalledWith(true);
+    expect(mockSetSelecteRow).toHaveBeenCalledWith(mockRow);
+    expect(mockSetPanelNum).toHaveBeenCalledWith(panelNum);
+  });
+});
+
 
