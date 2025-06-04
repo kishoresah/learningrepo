@@ -1,0 +1,71 @@
+CustomerComponent.tsx
+customerSlice.ts         <-- contains getCustomers thunk
+utils.ts                 <-- contains getAsbaClientAccountInfo
+CustomerComponent.test.tsx
+
+// CustomerComponent.test.tsx
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import CustomerComponent from './CustomerComponent';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
+
+// 1️⃣ Mock entire modules
+jest.mock('./customerSlice', () => ({
+  getCustomers: jest.fn(),
+}));
+
+jest.mock('./utils', () => ({
+  getAsbaClientAccountInfo: jest.fn(),
+}));
+
+// 2️⃣ Import mocked modules AFTER jest.mock
+import { getCustomers } from './customerSlice';
+import { getAsbaClientAccountInfo } from './utils';
+
+const middlewares = [thunk];
+const mockStore = configureStore(middlewares);
+
+describe('CustomerComponent (without spyOn)', () => {
+  it('fetches customer data and renders customer details', async () => {
+    const mockCustomerData = [
+      { name: 'Alice', accountNumber: '12345', balance: 5000 },
+      { name: 'Bob', accountNumber: '67890', balance: 3000 },
+    ];
+
+    const mockAccDetails = {
+      name: 'Alice',
+      accountNumber: '12345',
+      balance: 5000,
+    };
+
+    // 3️⃣ Provide mock implementations
+    getCustomers.mockImplementation(() => async () => ({
+      type: 'getCustomers/fulfilled',
+      payload: {
+        returnCode: '0000',
+        data: mockCustomerData,
+      },
+    }));
+
+    getAsbaClientAccountInfo.mockReturnValue(mockAccDetails);
+
+    const store = mockStore({});
+
+    render(
+      <Provider store={store}>
+        <CustomerComponent />
+      </Provider>
+    );
+
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByText('Customer Details')).toBeInTheDocument();
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+      expect(screen.getByText('12345')).toBeInTheDocument();
+      expect(screen.getByText('5000')).toBeInTheDocument();
+    });
+  });
+});
