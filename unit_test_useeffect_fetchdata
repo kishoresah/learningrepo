@@ -1,0 +1,37 @@
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import UserComponent from './UserComponent';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
+import * as userSlice from './userSlice'; // Import to mock `getuser`
+
+const middlewares = [thunk];
+const mockStore = configureStore(middlewares);
+
+describe('UserComponent', () => {
+  it('fetches user data and renders it', async () => {
+    const mockResponse = { name: 'John Doe', email: 'john@example.com' };
+
+    // Mock dispatch(getuser(body))
+    jest.spyOn(userSlice, 'getuser').mockImplementation(() => async () => ({
+      type: 'getuser/fulfilled',
+      payload: mockResponse,
+    }));
+
+    const store = mockStore({});
+
+    render(
+      <Provider store={store}>
+        <UserComponent />
+      </Provider>
+    );
+
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('username')).toHaveTextContent('John Doe');
+      expect(screen.getByTestId('email')).toHaveTextContent('john@example.com');
+    });
+  });
+});
