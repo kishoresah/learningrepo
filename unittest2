@@ -1,0 +1,55 @@
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import CustomerComponent from './CustomerComponent';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
+import * as customerSlice from './customerSlice';
+import * as utils from './utils'; // Import the utility function to mock it
+
+const middlewares = [thunk];
+const mockStore = configureStore(middlewares);
+
+describe('CustomerComponent', () => {
+  it('should fetch customer data and render customer details', async () => {
+    const mockCustomerData = [
+      { name: 'Alice', accountNumber: '12345', balance: 5000 },
+      { name: 'Bob', accountNumber: '67890', balance: 3000 },
+    ];
+
+    const mockAccountDetails = {
+      name: 'Alice',
+      accountNumber: '12345',
+      balance: 5000,
+    };
+
+    // Mock getCustomers thunk
+    jest.spyOn(customerSlice, 'getCustomers').mockImplementation(() => async () => ({
+      type: 'getCustomers/fulfilled',
+      payload: {
+        returnCode: '0000',
+        data: mockCustomerData,
+      },
+    }));
+
+    // Mock utility function
+    jest.spyOn(utils, 'getAsbaClientAccountInfo').mockReturnValue(mockAccountDetails);
+
+    const store = mockStore({});
+
+    render(
+      <Provider store={store}>
+        <CustomerComponent />
+      </Provider>
+    );
+
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByText('Customer Details')).toBeInTheDocument();
+      expect(screen.getByText(/Alice/)).toBeInTheDocument();
+      expect(screen.getByText(/12345/)).toBeInTheDocument();
+      expect(screen.getByText(/5000/)).toBeInTheDocument();
+    });
+  });
+});
