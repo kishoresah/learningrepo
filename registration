@@ -1,0 +1,189 @@
+This document outlines the registration flow for users selecting their Depository Participant (DP) type — CDSL or NSDL — and provides detailed information on input fields, field-level validations, API integrations, and post-submission behavior.
+
+🧩 1. Input Fields
+📍 DP Selection (Radio Button)
+Field Name: dpType
+
+Type: Radio Button
+
+Options:
+
+CDSL
+
+NSDL
+
+Based on this selection, different form fields may render. This document covers CDSL only, as per current scope.
+
+📍 CDSL Specific Fields
+Field Label	Field Name	Type	Mandatory	Notes
+Client ID	clientId	Text Input	✅	16-digit CDSL Client ID
+DP Mode of Operation	dpMode	Dropdown	✅	Options: Single, Joint
+Bank Account Number	bankAccount	Dropdown (API)	✅	Fetched from backend
+1st DP Account Holder Name	firstHolderName	Text Input	✅	Auto-filled or user entered
+1st DP Account Holder PAN	firstHolderPan	Text Input	✅	Validated via API
+2nd DP Account Holder Name (if joint)	secondHolderName	Text Input	Conditional	Only if dpMode is Joint
+2nd DP Account Holder PAN (if joint)	secondHolderPan	Text Input	Conditional	Only if dpMode is Joint
+3rd DP Account Holder Name (if joint)	thirdHolderName	Text Input	Conditional	Only if dpMode is Joint
+3rd DP Account Holder PAN (if joint)	thirdHolderPan	Text Input	Conditional	Only if dpMode is Joint
+
+✅ 2. Validations
+🔎 Frontend Validation Rules
+Client ID:
+
+Must be exactly 16 digits.
+
+Numeric only.
+
+PAN Card:
+
+Must match pattern: [A-Z]{5}[0-9]{4}[A-Z]{1}.
+
+Convert lowercase to uppercase before submission.
+
+Holder Names:
+
+Should not contain numbers/special characters.
+
+Length max: 100 characters.
+
+Bank Account Number:
+
+Dropdown should not be empty.
+
+Must select a value from the list.
+
+DP Mode:
+
+Required field.
+
+If Joint is selected, 2nd and 3rd holder details become mandatory.
+
+🔌 3. API Integrations
+🔁 3.1 Fetch Bank Account Numbers
+Endpoint: /api/user/bank-accounts
+
+Method: GET
+
+Auth Required: ✅
+
+Response:
+
+json
+Copy
+Edit
+[
+  {
+    "accountNumber": "1234567890",
+    "label": "ICICI Savings - 1234"
+  },
+  ...
+]
+🔁 3.2 Validate PAN against Account Holder
+Endpoint: /api/validate-pan
+
+Method: POST
+
+Payload:
+
+json
+Copy
+Edit
+{
+  "clientId": "xxxxxxxxxxxxxxxx",
+  "pan": "ABCDE1234F"
+}
+Response:
+
+json
+Copy
+Edit
+{
+  "isValid": true,
+  "matchedName": "John Doe"
+}
+Action: If PAN is invalid or does not match, display error and block submission.
+
+📨 4. Post-Submission
+🚀 Submit Registration Data
+Endpoint: /api/submit-registration
+
+Method: POST
+
+Payload:
+
+json
+Copy
+Edit
+{
+  "dpType": "CDSL",
+  "clientId": "xxxxxxxxxxxxxxxx",
+  "dpMode": "Single",
+  "bankAccount": "1234567890",
+  "firstHolder": {
+    "name": "John Doe",
+    "pan": "ABCDE1234F"
+  },
+  "secondHolder": {
+    "name": "",
+    "pan": ""
+  },
+  "thirdHolder": {
+    "name": "",
+    "pan": ""
+  }
+}
+Success Response:
+
+json
+Copy
+Edit
+{
+  "status": "success",
+  "message": "Registration successful"
+}
+Failure Response:
+
+json
+Copy
+Edit
+{
+  "status": "error",
+  "message": "PAN verification failed"
+}
+⚠️ 5. Error Handling
+Scenario	Display Message
+Invalid PAN Format	"Please enter a valid PAN (e.g., ABCDE1234F)"
+PAN Not Matching	"Entered PAN does not match the account holder details."
+Empty Required Field	"This field is required."
+API Failure	"Something went wrong. Please try again later."
+
+📌 6. UX Considerations
+Disable submit button until all validations pass.
+
+Use loading indicators when fetching bank accounts and validating PAN.
+
+If DP Mode is Single, hide 2nd and 3rd holder fields entirely.
+
+Autofocus to next empty field on error during submission.
+
+Let me know if you also want to cover NSDL flow, or if this needs to be structured into a UI flowchart or wireframe.
+
+
+
+
+
+
+
+
+
+Unlock more with Plus
+ChatGPT Plus gives you higher limits, smarter models, and Sora for video.
+
+Get Plus
+
+
+
+
+Tools
+
+
