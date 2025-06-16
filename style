@@ -1,11 +1,34 @@
+import React from 'react';
+import { InputLabel, TextField } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-const StyledInputLabel = styled(InputLabel)(({ theme }) => ({
+const LabelContainer = styled('div')({
   display: 'flex',
   alignItems: 'center',
-  gap: '4px',
-  '& .required-asterisk': {
+  gap: '4px', // spacing between label and image
+});
+
+const StyledInputLabel = styled(InputLabel)(({ theme }) => ({
+  '& .label-text::after': {
+    content: '" *"',
     color: theme.palette.error.main,
     marginLeft: '2px',
   },
 }));
+
+function CustomInput() {
+  return (
+    <div>
+      <LabelContainer>
+        <StyledInputLabel htmlFor="my-input">
+          <span className="label-text">Username</span>
+        </StyledInputLabel>
+        <img src="/path-to-icon.svg" alt="icon" height="20" />
+      </LabelContainer>
+
+      <TextField id="my-input" variant="outlined" fullWidth />
+    </div>
+  );
+}
+
+export default CustomInput;
