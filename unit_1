@@ -1,0 +1,45 @@
+import React from "react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import ParentComponent from "./ParentComponent";
+import * as api from "./api";
+
+// Mock API call
+jest.spyOn(api, "submitRegistration").mockImplementation(() =>
+  Promise.resolve({ status: 200, message: "Success" })
+);
+
+describe("ParentComponent Submit Flow", () => {
+  test("should fill form and submit successfully", async () => {
+    render(<ParentComponent />);
+
+    // Fill out form inputs
+    fireEvent.change(screen.getByPlaceholderText("Username"), {
+      target: { value: "JohnDoe" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Email"), {
+      target: { value: "john@example.com" },
+    });
+
+    // Click submit button in Footer
+    fireEvent.click(screen.getByText("Submit"));
+
+    await waitFor(() => {
+      expect(api.submitRegistration).toHaveBeenCalledWith({
+        username: "JohnDoe",
+        email: "john@example.com",
+      });
+    });
+  });
+
+  test("should show alert on validation failure", () => {
+    // Spy on alert
+    window.alert = jest.fn();
+
+    render(<ParentComponent />);
+
+    // Don't fill the form to trigger validation fail
+    fireEvent.click(screen.getByText("Submit"));
+
+    expect(window.alert).toHaveBeenCalledWith("Validation failed");
+  });
+});
