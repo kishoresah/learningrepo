@@ -16,7 +16,7 @@ const CaptchaCanvas = ({ captchaText, width = 220, height = 70 }) => {
       ctx.fillStyle = `rgba(${rand(0, 255)}, ${rand(0, 255)}, ${rand(
         0,
         255
-      )}, 0.5)`;
+      )}, 0.4)`;
       ctx.beginPath();
       ctx.arc(rand(0, width), rand(0, height), rand(1, 2), 0, Math.PI * 2);
       ctx.fill();
@@ -27,25 +27,22 @@ const CaptchaCanvas = ({ captchaText, width = 220, height = 70 }) => {
       ctx.strokeStyle = `rgba(${rand(0, 255)}, ${rand(0, 255)}, ${rand(
         0,
         255
-      )}, 0.4)`;
+      )}, 0.3)`;
       ctx.beginPath();
       ctx.moveTo(rand(0, width), rand(0, height));
       ctx.lineTo(rand(0, width), rand(0, height));
       ctx.stroke();
     }
 
-    // Draw readable CAPTCHA text
-    ctx.font = "bold 34px 'Arial Black', sans-serif"; // Bigger, bolder font
+    // Draw black CAPTCHA text
+    ctx.font = "bold 34px 'Arial Black', sans-serif";
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
+    ctx.fillStyle = "#000"; // solid black font
 
     const spacing = width / (captchaText.length + 1);
     for (let i = 0; i < captchaText.length; i++) {
       const char = captchaText[i];
-      ctx.fillStyle = `rgb(${rand(50, 200)}, ${rand(50, 200)}, ${rand(
-        50,
-        200
-      )})`; // Avoid too light colors
       const y = height / 2 + Math.sin(i + Date.now() / 500) * 4; // Mild wave
       ctx.save();
       ctx.translate(spacing * (i + 1), y);
