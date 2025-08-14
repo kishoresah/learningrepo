@@ -1,0 +1,33 @@
+<Box
+                sx={{
+                    display: 'inline-block',
+                    p: 1,
+                    backgroundColor: '#f0f0f0',
+                    border: '1px solid #ccc',
+                    fontWeight: 'bold',
+                    letterSpacing: '5px',
+                    fontSize: '1.2rem',
+                    minWidth: '150px',
+                    textAlign: 'center',
+                    mb: 2,
+                }}
+            >
+                {captchaText}
+            </Box>
+            <Button onClick={generateCaptcha} variant="outlined" sx={{ ml: 2, mb: 2 }}>
+                Refresh
+            </Button>
+            <TextField
+                label="Enter CAPTCHA"
+                variant="outlined"
+                fullWidth
+                value={userInput}
+                onChange={handleInputChange}
+                error={captchaValid === false}
+                helperText={captchaValid === false && 'Incorrect CAPTCHA'}
+                sx={{ mb: 2 }}
+            />
+            <Button variant="contained" onClick={handleSubmit}>
+                Submit
+            </Button>
+        </Box>
