@@ -1,56 +1,62 @@
 import React, { useEffect, useRef } from "react";
 
-const CaptchaCanvas = ({ captchaText, width = 200, height = 60 }) => {
+const CaptchaCanvas = ({ captchaText, width = 220, height = 70 }) => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
-    // Fill background with light gray
-    ctx.fillStyle = "#f0f0f0";
+    // Fill background
+    ctx.fillStyle = "#f7f7f7";
     ctx.fillRect(0, 0, width, height);
 
-    // Add random dots for noise
-    for (let i = 0; i < 150; i++) {
+    // Add fewer random dots (noise)
+    for (let i = 0; i < 50; i++) {
       ctx.fillStyle = `rgba(${rand(0, 255)}, ${rand(0, 255)}, ${rand(
         0,
         255
-      )}, 0.7)`;
+      )}, 0.5)`;
       ctx.beginPath();
-      ctx.arc(rand(0, width), rand(0, height), rand(1, 3), 0, Math.PI * 2);
+      ctx.arc(rand(0, width), rand(0, height), rand(1, 2), 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // Draw random lines for noise
-    for (let i = 0; i < 5; i++) {
+    // Add fewer lines
+    for (let i = 0; i < 3; i++) {
       ctx.strokeStyle = `rgba(${rand(0, 255)}, ${rand(0, 255)}, ${rand(
         0,
         255
-      )}, 0.5)`;
+      )}, 0.4)`;
       ctx.beginPath();
       ctx.moveTo(rand(0, width), rand(0, height));
       ctx.lineTo(rand(0, width), rand(0, height));
       ctx.stroke();
     }
 
-    // Draw CAPTCHA text with wave distortion
-    ctx.font = "bold 28px 'Courier New'";
+    // Draw readable CAPTCHA text
+    ctx.font = "bold 34px 'Arial Black', sans-serif"; // Bigger, bolder font
     ctx.textBaseline = "middle";
-    const xStart = 20;
+    ctx.textAlign = "center";
+
+    const spacing = width / (captchaText.length + 1);
     for (let i = 0; i < captchaText.length; i++) {
       const char = captchaText[i];
-      ctx.fillStyle = `rgb(${rand(0, 255)}, ${rand(0, 255)}, ${rand(0, 255)})`;
-      const y = height / 2 + Math.sin(i + Date.now() / 300) * 6;
+      ctx.fillStyle = `rgb(${rand(50, 200)}, ${rand(50, 200)}, ${rand(
+        50,
+        200
+      )})`; // Avoid too light colors
+      const y = height / 2 + Math.sin(i + Date.now() / 500) * 4; // Mild wave
       ctx.save();
-      ctx.translate(xStart + i * 25, y);
-      ctx.rotate(rand(-15, 15) * Math.PI / 180); // random rotation
+      ctx.translate(spacing * (i + 1), y);
+      ctx.rotate(rand(-10, 10) * Math.PI / 180); // Small rotation for variation
       ctx.fillText(char, 0, 0);
       ctx.restore();
     }
   }, [captchaText, width, height]);
 
-  const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+  const rand = (min, max) =>
+    Math.floor(Math.random() * (max - min + 1)) + min;
 
   return <canvas ref={canvasRef} width={width} height={height} />;
 };
