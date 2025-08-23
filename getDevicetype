@@ -4,4 +4,10 @@ function getDeviceType(): "mobile" | "desktop" {
   return mobileRegex.test(userAgent) ? "mobile" : "desktop";
 }
 
+function getDeviceType(): "mobile" | "desktop" {
+  const userAgent = navigator.userAgent.toLowerCase();
+  const mobileRegex = /android|iphone|ipad|ipod|blackberry|windows phone|opera mini|mobile/;
+  return mobileRegex.test(userAgent) ? "mobile" : "desktop";
+}
+
 console.log(getDeviceType());

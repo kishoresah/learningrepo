@@ -1,5 +1,9 @@
 import React, { useEffect, useRef } from "react";
 
+import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
+
+
 const CaptchaCanvas = ({ captchaText, width = 220, height = 70 }) => {
   const canvasRef = useRef(null);
 
