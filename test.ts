@@ -8,6 +8,9 @@ console.log("I am kishore full stacks");
 
 console.log("kishore sah did the changes just now")
 
+console.log("it is working fine");
+console.log("it is working fine 2");
+
 /**
  * get fetch --all
  * git pull --all
