@@ -7,3 +7,11 @@ console.log("I am kishore full 222 stacks");
 console.log("I am kishore full stacks");
 
 console.log("kishore sah did the changes just now")
+
+/**
+ * get fetch --all
+ * git pull --all
+ * 
+ * 
+ * 
+ */
